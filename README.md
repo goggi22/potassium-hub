@@ -41,6 +41,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/goggi22/potassium-hub
 | **[Хрущёвка 🎃 (Horror)](games/khrushchyovka.luau)** | `2873491823`<br>`82115753075808` | ![Stable](https://img.shields.io/badge/Stable-00E676?style=flat-square) | Entity ESP, Fullbright / NightVision, Infinite Stamina, Door Unlocks, Event Tracker |
 | **[[⚔️] 1.8 KIT PVP](games/kit_pvp_1_8.luau)** | `2618305829`<br>`72393956865647` | ![Stable](https://img.shields.io/badge/Stable-00E676?style=flat-square) | Combat Assist, Reach Modifier, Velocity-smooth Safe Movement, Player ESP, Kit Auto-Select |
 | **[STRAFEX [Spear Mace!]](games/strafex.luau)** | `4639201948`<br>`129861507977954` | ![Stable](https://img.shields.io/badge/Stable-00E676?style=flat-square) | **Native Liquid Glass** (No Rayfield CDN dependency), Reach, Fall-Smash Mace Assist, Fast Clicker, Anti-KB, Combat ESP, Config Persistence |
+| **[[🌳] +1 Sword Vs Platforms](games/sword_vs_platforms.luau)** | `10768385990`<br>`96222041874857` | ![Stable](https://img.shields.io/badge/Stable-00E676?style=flat-square) | **Smart Gate Navigator** (100% Green/Gold Door Solver), Chest Harvester, Screen MultiPopup Auto-Clicker, AFK Zone Trainer, Auto Rebirth, Auto Best Weapon/Shield, Direct Teleports |
 | **[Universal Engine](games/universal.luau)** | *Any Game* | ![Universal](https://img.shields.io/badge/Universal-7B2CBF?style=flat-square) | 3D Physics Flight, Noclip, Player ESP, Fullbright, Ctrl+Click TP, Anti-AFK (20 min bypass), Server Hop, Config Manager |
 
 ---
@@ -78,6 +79,7 @@ potassium-hub/
 │   ├── khrushchyovka.luau    # Khrushchyovka [Horror] Suite
 │   ├── kit_pvp_1_8.luau      # 1.8 KIT PVP Suite
 │   ├── strafex.luau          # STRAFEX [Spear Mace!] Suite (Pure MD3)
+│   ├── sword_vs_platforms.luau# +1 Sword Vs Platforms Suite (Pure MD3)
 │   └── universal.luau        # Universal Game Suite (Pure MD3)
 └── src/
     └── ui/

@@ -99,6 +99,14 @@ local GameRegistry = {
         Script = "games/strafex.luau",
         Icon = "🛡️"
     },
+    {
+        Id = "sword_vs_platforms",
+        Name = "[🌳] +1 Sword Vs Platforms",
+        UniverseIds = { 10768385990 },
+        PlaceIds = { 96222041874857 },
+        Script = "games/sword_vs_platforms.luau",
+        Icon = "🗡️"
+    },
 }
 
 -- Notification Toast
@@ -242,6 +250,10 @@ function PotassiumHub.Unload()
     if getgenv()._KitPvPInstance and typeof(getgenv()._KitPvPInstance.Unload) == "function" then
         pcall(function() getgenv()._KitPvPInstance:Unload() end)
         getgenv()._KitPvPInstance = nil
+    end
+    if getgenv()._SwordVsPlatformsSuite and typeof(getgenv()._SwordVsPlatformsSuite.Unload) == "function" then
+        pcall(function() getgenv()._SwordVsPlatformsSuite:Unload() end)
+        getgenv()._SwordVsPlatformsSuite = nil
     end
     if getgenv().StealBaddiesInstance and typeof(getgenv().StealBaddiesInstance.Destroy) == "function" then
         pcall(function() getgenv().StealBaddiesInstance:Destroy() end)
