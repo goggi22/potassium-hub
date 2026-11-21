@@ -1,6 +1,6 @@
 --[[
     ══════════════════════════════════════════════════════════════════════
-    POTASSIUM HUB — SMART AUTO-DETECT MASTER LOADER
+    POTASSIUM HUB — SMART UNIVERSE-AWARE MASTER LOADER
     ══════════════════════════════════════════════════════════════════════
     Repository : https://github.com/goggi22/potassium-hub
     Author     : goggi22
@@ -8,69 +8,101 @@
     
     Quick Execution:
       loadstring(game:HttpGet("https://raw.githubusercontent.com/goggi22/potassium-hub/main/loader.luau"))()
+    
+    Upgrades:
+      • Cache-Buster on all raw GitHub HttpGet requests (prevents stale client cache)
+      • Dual Detection: Matches both game.PlaceId and game.GameId (Universe ID)
+      • Unified Panic / Unload System: [End] key unloads any running suite immediately
     ══════════════════════════════════════════════════════════════════════
 ]]
 
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
 local LocalPlayer = Players.LocalPlayer
 local PlaceId = game.PlaceId
+local GameId = game.GameId -- Universe ID
 
 local BaseURL = "https://raw.githubusercontent.com/goggi22/potassium-hub/main/"
 
--- Supported Game Registry
+-- Cache-Buster Helper
+local function CacheBust(url)
+    local sep = url:find("%?") and "&" or "?"
+    return url .. sep .. "nocache=" .. tostring(os.time()) .. "_" .. tostring(math.random(10000, 99999))
+end
+
+-- Supported Experience Registry (Supports UniverseIds & PlaceIds)
 local GameRegistry = {
-    [121362092826008] = {
+    {
+        Id = "steal_baddies",
         Name = "Jump To Steal Baddies!",
+        UniverseIds = { 10769344844 },
+        PlaceIds = { 121362092826008 },
         Script = "games/steal_baddies.luau",
         Icon = "🥷"
     },
-    [18134283205] = {
+    {
+        Id = "lucky_islands",
         Name = "Lucky Islands",
+        UniverseIds = { 6265007289 },
+        PlaceIds = { 18134283205 },
         Script = "games/lucky_islands.luau",
         Icon = "🍀"
     },
-    [108114331578868] = {
+    {
+        Id = "towers_of_fortune",
         Name = "Towers of Fortune",
+        UniverseIds = { 3724395896 },
+        PlaceIds = { 108114331578868, 8872596853 },
         Script = "games/towers_of_fortune.luau",
         Icon = "🏰"
     },
-    [99507719593544] = {
-        Name = "Texas Granny (Lobby)",
+    {
+        Id = "texas_granny",
+        Name = "Texas Granny",
+        UniverseIds = { 6625841029 },
+        PlaceIds = { 99507719593544, 128897979987102 },
         Script = "games/texas_granny.luau",
         Icon = "👵"
     },
-    [128897979987102] = {
-        Name = "Texas Granny (Match)",
-        Script = "games/texas_granny.luau",
-        Icon = "👵"
-    },
-    [117273975798730] = {
+    {
+        Id = "fling_arena",
         Name = "Fling Arena 💥",
+        UniverseIds = { 10772462583 },
+        PlaceIds = { 117273975798730 },
         Script = "games/fling_arena.luau",
         Icon = "💥"
     },
-    [82115753075808] = {
+    {
+        Id = "khrushchyovka",
         Name = "Хрущёвка 🎃 [Ужасы]",
+        UniverseIds = { 2873491823 },
+        PlaceIds = { 82115753075808, 8974581290 },
         Script = "games/khrushchyovka.luau",
         Icon = "🏢"
     },
-    [72393956865647] = {
+    {
+        Id = "kit_pvp_1_8",
         Name = "[⚔️] 1.8 KIT PVP",
+        UniverseIds = { 2618305829 },
+        PlaceIds = { 72393956865647 },
         Script = "games/kit_pvp_1_8.luau",
         Icon = "⚔️"
     },
-    [129861507977954] = {
+    {
+        Id = "strafex",
         Name = "STRAFEX [Spear Mace!]",
+        UniverseIds = { 4639201948 },
+        PlaceIds = { 129861507977954 },
         Script = "games/strafex.luau",
         Icon = "🛡️"
     },
 }
 
--- Animated Notification Toast
-local function ShowNotification(titleText, subtitleText, iconText, duration)
+-- Notification Toast
+local function ShowToast(titleText, subtitleText, iconText, duration)
     pcall(function()
         local sg = CoreGui:FindFirstChild("PotassiumToastGui") or Instance.new("ScreenGui")
         sg.Name = "PotassiumToastGui"
@@ -78,8 +110,8 @@ local function ShowNotification(titleText, subtitleText, iconText, duration)
         sg.Parent = CoreGui
 
         local card = Instance.new("Frame")
-        card.Size = UDim2.new(0, 300, 0, 64)
-        card.Position = UDim2.new(1, 20, 1, -85) -- Start offscreen right
+        card.Size = UDim2.new(0, 310, 0, 64)
+        card.Position = UDim2.new(1, 20, 1, -85)
         card.BackgroundColor3 = Color3.fromRGB(15, 18, 28)
         card.BackgroundTransparency = 0.15
         card.BorderSizePixel = 0
@@ -96,7 +128,7 @@ local function ShowNotification(titleText, subtitleText, iconText, duration)
         stroke.Parent = card
 
         local icon = Instance.new("TextLabel")
-        icon.Size = UDim2.new(0, 40, 1, 0)
+        icon.Size = UDim2.new(0, 42, 1, 0)
         icon.BackgroundTransparency = 1
         icon.Font = Enum.Font.GothamBold
         icon.Text = iconText or "⚡"
@@ -105,8 +137,8 @@ local function ShowNotification(titleText, subtitleText, iconText, duration)
         icon.Parent = card
 
         local title = Instance.new("TextLabel")
-        title.Position = UDim2.new(0, 44, 0, 12)
-        title.Size = UDim2.new(1, -50, 0, 20)
+        title.Position = UDim2.new(0, 46, 0, 12)
+        title.Size = UDim2.new(1, -52, 0, 20)
         title.BackgroundTransparency = 1
         title.Font = Enum.Font.GothamBold
         title.Text = titleText
@@ -116,8 +148,8 @@ local function ShowNotification(titleText, subtitleText, iconText, duration)
         title.Parent = card
 
         local sub = Instance.new("TextLabel")
-        sub.Position = UDim2.new(0, 44, 0, 32)
-        sub.Size = UDim2.new(1, -50, 0, 18)
+        sub.Position = UDim2.new(0, 46, 0, 32)
+        sub.Size = UDim2.new(1, -52, 0, 18)
         sub.BackgroundTransparency = 1
         sub.Font = Enum.Font.Gotham
         sub.Text = subtitleText
@@ -126,13 +158,12 @@ local function ShowNotification(titleText, subtitleText, iconText, duration)
         sub.TextXAlignment = Enum.TextXAlignment.Left
         sub.Parent = card
 
-        -- Animate In
-        TweenService:Create(card, TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Position = UDim2.new(1, -320, 1, -85)
+        TweenService:Create(card, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Position = UDim2.new(1, -330, 1, -85)
         }):Play()
 
         task.delay(duration or 3.5, function()
-            local outTween = TweenService:Create(card, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            local outTween = TweenService:Create(card, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
                 Position = UDim2.new(1, 20, 1, -85)
             })
             outTween:Play()
@@ -143,57 +174,122 @@ local function ShowNotification(titleText, subtitleText, iconText, duration)
     end)
 end
 
--- Loader Controller
+-- Resolve target experience
+local function ResolveExperience()
+    for _, entry in ipairs(GameRegistry) do
+        if table.find(entry.PlaceIds, PlaceId) then
+            return entry
+        end
+        if GameId and GameId ~= 0 and table.find(entry.UniverseIds, GameId) then
+            return entry
+        end
+    end
+    return nil
+end
+
+-- Master Hub Controller
 local PotassiumHub = {
-    Version = "2.5.0",
+    Version = "2.6.0",
     Registry = GameRegistry,
+    ActiveSuite = nil,
+    Connections = {},
 }
 
-function PotassiumHub.ExecuteScript(relPath, gameName)
-    local url = BaseURL .. relPath
+function PotassiumHub.ExecuteRaw(relPath, label)
+    local targetUrl = CacheBust(BaseURL .. relPath)
     local ok, content = pcall(function()
-        return game:HttpGet(url)
+        return game:HttpGet(targetUrl)
     end)
     if not ok or not content or #content == 0 then
-        ShowNotification("Load Error", "Failed to fetch " .. relPath, "❌", 4)
+        ShowToast("Fetch Failed", "Could not retrieve " .. relPath, "❌", 4)
         return false
     end
 
     local loadOk, fn = pcall(loadstring, content)
     if not loadOk or not fn then
-        ShowNotification("Syntax Error", "Could not compile " .. relPath, "❌", 4)
+        ShowToast("Compile Error", "Syntax error in " .. relPath, "❌", 4)
         return false
     end
 
-    local execOk, err = pcall(fn)
+    local execOk, res = pcall(fn)
     if not execOk then
-        ShowNotification("Runtime Error", tostring(err):sub(1, 35), "⚠️", 4)
+        ShowToast("Runtime Error", tostring(res):sub(1, 35), "⚠️", 4)
         return false
     end
 
+    PotassiumHub.ActiveSuite = res
     return true
 end
 
+function PotassiumHub.Unload()
+    -- 1. Unload Active Suite if it has Destroy or Unload method
+    if PotassiumHub.ActiveSuite then
+        if typeof(PotassiumHub.ActiveSuite.Unload) == "function" then
+            pcall(PotassiumHub.ActiveSuite.Unload, PotassiumHub.ActiveSuite)
+        elseif typeof(PotassiumHub.ActiveSuite.Destroy) == "function" then
+            pcall(PotassiumHub.ActiveSuite.Destroy, PotassiumHub.ActiveSuite)
+        end
+        PotassiumHub.ActiveSuite = nil
+    end
+
+    -- 2. Clean Global UI instances
+    if getgenv()._LiquidGlassUIInstance then
+        pcall(function() getgenv()._LiquidGlassUIInstance:Destroy() end)
+        getgenv()._LiquidGlassUIInstance = nil
+    end
+
+    -- 3. Clean specific game instances if left in getgenv
+    if getgenv()._KitPvPInstance and typeof(getgenv()._KitPvPInstance.Unload) == "function" then
+        pcall(function() getgenv()._KitPvPInstance:Unload() end)
+        getgenv()._KitPvPInstance = nil
+    end
+    if getgenv().StealBaddiesInstance and typeof(getgenv().StealBaddiesInstance.Destroy) == "function" then
+        pcall(function() getgenv().StealBaddiesInstance:Destroy() end)
+        getgenv().StealBaddiesInstance = nil
+    end
+    if getgenv().UniversalPotassiumInstance and typeof(getgenv().UniversalPotassiumInstance.Destroy) == "function" then
+        pcall(function() getgenv().UniversalPotassiumInstance:Destroy() end)
+        getgenv().UniversalPotassiumInstance = nil
+    end
+
+    -- 4. Disconnect Loader Connections
+    for _, conn in ipairs(PotassiumHub.Connections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    PotassiumHub.Connections = {}
+
+    ShowToast("Hub Unloaded", "Detached all hooks and interfaces.", "🛡️", 2.5)
+end
+
 function PotassiumHub.Init()
-    local matched = GameRegistry[PlaceId]
+    -- Bind Global Panic Key [End]
+    local panicConn = UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe then return end
+        if input.KeyCode == Enum.KeyCode.End then
+            PotassiumHub.Unload()
+        end
+    end)
+    table.insert(PotassiumHub.Connections, panicConn)
+
+    local matched = ResolveExperience()
     if matched then
-        ShowNotification(
+        ShowToast(
             "Game Detected!",
             matched.Icon .. " " .. matched.Name,
             "⚡",
             3.5
         )
-        task.wait(0.4)
-        PotassiumHub.ExecuteScript(matched.Script, matched.Name)
+        task.wait(0.35)
+        PotassiumHub.ExecuteRaw(matched.Script, matched.Name)
     else
-        ShowNotification(
+        ShowToast(
             "Universal Mode",
-            "Unsupported Place • Loading Universal Suite",
+            "Place: " .. tostring(PlaceId) .. " • Loading Universal Suite",
             "🌐",
             3.5
         )
-        task.wait(0.4)
-        PotassiumHub.ExecuteScript("games/universal.luau", "Universal")
+        task.wait(0.35)
+        PotassiumHub.ExecuteRaw("games/universal.luau", "Universal")
     end
 end
 

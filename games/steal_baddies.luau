@@ -53,6 +53,7 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 local Workspace = game:GetService("Workspace")
 
 local LocalPlayer = Players.LocalPlayer
@@ -1168,6 +1169,7 @@ function StealBaddies:BuildInterface()
     -- Keyboard Toggle (V or RightShift)
     local inputConn = UserInputService.InputBegan:Connect(function(input, gpe)
         if gpe then return end
+        if input.KeyCode == Enum.KeyCode.End then self:Destroy() return end
         if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.V then
             MainFrame.Visible = not MainFrame.Visible
             Pill.Visible = not MainFrame.Visible
@@ -1182,7 +1184,49 @@ end
 -- ─────────────────────────────────────────────────────────────────────────────
 -- LIFECYCLE & BACKGROUND RUNNERS
 -- ─────────────────────────────────────────────────────────────────────────────
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- CONFIG / SAVE MANAGER
+-- ─────────────────────────────────────────────────────────────────────────────
+function StealBaddies:SaveConfig(name)
+    name = name or "default"
+    if typeof(writefile) == "function" and typeof(makefolder) == "function" and typeof(isfolder) == "function" then
+        pcall(function()
+            if not isfolder("potassium_hub") then makefolder("potassium_hub") end
+            if not isfolder("potassium_hub/configs") then makefolder("potassium_hub/configs") end
+            if not isfolder("potassium_hub/configs/StealBaddies") then makefolder("potassium_hub/configs/StealBaddies") end
+            local enc = HttpService:JSONEncode(self.Config)
+            writefile("potassium_hub/configs/StealBaddies/" .. name .. ".json", enc)
+        end)
+        return true
+    end
+    return false
+end
+
+function StealBaddies:LoadConfig(name)
+    name = name or "default"
+    if typeof(readfile) == "function" and typeof(isfile) == "function" then
+        local p = "potassium_hub/configs/StealBaddies/" .. name .. ".json"
+        if isfile(p) then
+            local ok, content = pcall(readfile, p)
+            if ok and content then
+                local dOk, data = pcall(function() return HttpService:JSONDecode(content) end)
+                if dOk and typeof(data) == "table" then
+                    for k, v in pairs(data) do
+                        if typeof(self.Config[k]) == typeof(v) then
+                            self.Config[k] = v
+                        end
+                    end
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
 function StealBaddies:Init()
+    pcall(function() self:LoadConfig("default") end)
     ResolveMyPlot()
     self:BuildInterface()
     self:ApplyBypasses()
