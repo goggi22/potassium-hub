@@ -92,12 +92,20 @@ local GameRegistry = {
         Icon = "⚔️"
     },
     {
-        Id = "strafex",
-        Name = "STRAFEX [Spear Mace!]",
-        UniverseIds = { 4639201948 },
-        PlaceIds = { 129861507977954 },
-        Script = "games/strafex.luau",
-        Icon = "🛡️"
+        Id = "kit_pvp_ffa",
+        Name = "[⚔️] Kit PVP FFA",
+        UniverseIds = { 10774244015 },
+        PlaceIds = { 75260404327641 },
+        Script = "games/kit_pvp_ffa.luau",
+        Icon = "🤺"
+    },
+    {
+        Id = "lucky_block_race",
+        Name = "Lucky Block Race",
+        UniverseIds = { 10774987471 },
+        PlaceIds = { 94106144703688 },
+        Script = "games/lucky_block_race.luau",
+        Icon = "🏁"
     },
     {
         Id = "sword_vs_platforms",
